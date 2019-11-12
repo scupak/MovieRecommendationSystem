@@ -6,10 +6,15 @@
 package movierecsys.dal;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import movierecsys.be.Movie;
@@ -91,9 +96,35 @@ public class MovieDAO
      *
      * @param movie The movie to delete.
      */
-    private void deleteMovie(Movie movie)
+    public void deleteMovie(Movie movie)
     {
-        //TODO Delete movie
+        
+       
+        try
+        {
+            File file = new File(MOVIE_SOURCE);
+            List<Movie> movies = getAllMovies();
+            OutputStream os = Files.newOutputStream(file.toPath(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+            try ( BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os)))
+            {
+                for (Movie mov : movies)
+                {
+                    if (mov.getId() != movie.getId())
+                    {
+                        String line = mov.getId() + "," + mov.getYear() + "," + mov.getTitle();
+                        bw.write(line);
+                        bw.newLine();
+                    }
+                    else{
+                        System.out.println(mov);
+                        System.out.println("shit");
+                    }
+                }
+            }
+        } catch (IOException ex)
+        {
+            
+        }
     }
 
     /**
