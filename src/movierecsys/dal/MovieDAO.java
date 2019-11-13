@@ -10,10 +10,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,43 +89,62 @@ public class MovieDAO
      */
     private Movie createMovie(int releaseYear, String title)
     {
-        //TODO Create movie.
-        return null;
+       Path path = new File(MOVIE_SOURCE).toPath();
+        int id = -1;
+        try ( BufferedWriter bw = Files.newBufferedWriter(path, StandardOpenOption.SYNC, StandardOpenOption.APPEND, StandardOpenOption.WRITE))
+        {
+            id = getNextAvailableMovieID();
+            bw.newLine();
+            bw.write(id + "," + releaseYear + "," + title);
+        } catch (IOException ex)
+        {
+            
+        }
+        return new Movie(id, releaseYear, title);
     }
+
+    
+    private int getNextAvailableMovieID() throws IOException 
+    {   
+        List<Movie> allMovies = getAllMovies();
+        if (allMovies == null || allMovies.isEmpty())
+        {
+            return 1;
+        }
+        allMovies.sort((Movie arg0, Movie arg1) -> arg0.getId() - arg1.getId());
+        int id = allMovies.get(0).getId();
+        for (int i = 0; i < allMovies.size(); i++)
+        {
+            if (allMovies.get(i).getId() <= id)
+            {
+                id++;
+            } else
+            {
+                return id;
+            }
+        }
+        return id;
+    }
+    
 
     /**
      * Deletes a movie from the persistence storage.
      *
      * @param movie The movie to delete.
      */
-    public void deleteMovie(Movie movie)
+    public void deleteMovie(Movie movie) throws IOException
     {
-        
-       
-        try
+        List<Movie> allMovies = getAllMovies();
+        if (allMovies.remove(movie))
         {
-            File file = new File(MOVIE_SOURCE);
-            List<Movie> movies = getAllMovies();
-            OutputStream os = Files.newOutputStream(file.toPath(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-            try ( BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os)))
+            try ( BufferedWriter bw = new BufferedWriter(new FileWriter(new File(MOVIE_SOURCE))))
             {
-                for (Movie mov : movies)
+                for (Movie mov : allMovies)
                 {
-                    if (mov.getId() != movie.getId())
-                    {
-                        String line = mov.getId() + "," + mov.getYear() + "," + mov.getTitle();
-                        bw.write(line);
-                        bw.newLine();
-                    }
-                    else{
-                        System.out.println(mov);
-                        System.out.println("shit");
-                    }
+                    bw.write(mov.getId() + "," + mov.getYear() + "," + mov.getTitle());
+                    bw.newLine();
                 }
             }
-        } catch (IOException ex)
-        {
-            
         }
     }
 
@@ -133,9 +154,22 @@ public class MovieDAO
      *
      * @param movie The updated movie.
      */
-    private void updateMovie(Movie movie)
+    private void updateMovie(Movie movie) throws IOException
     {
-        //TODO Update movies
+       List<Movie> allMovies = getAllMovies();
+       
+        if (allMovies.remove(movie))
+        {
+            allMovies.add(movie);
+            try ( BufferedWriter bw = new BufferedWriter(new FileWriter(new File(MOVIE_SOURCE))))
+            {
+                for (Movie mov : allMovies)
+                {
+                    bw.write(mov.getId() + "," + mov.getYear() + "," + mov.getTitle());
+                    bw.newLine();
+                }
+            }
+        }
     }
 
     /**

@@ -68,7 +68,7 @@ public class MovieRecViewController implements Initializable {
         } catch (IOException ex) {
             Logger.getLogger(MovieRecViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        lstMovies.setItems(model.getInmates());
+        lstMovies.setItems(model.getMovies());
     }    
 
     @FXML
@@ -81,6 +81,8 @@ public class MovieRecViewController implements Initializable {
 
     @FXML
     private void handleDeleteMovie(ActionEvent event) {
+        
+        
     }
 
     @FXML

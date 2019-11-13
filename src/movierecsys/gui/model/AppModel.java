@@ -17,21 +17,21 @@ import movierecsys.bll.BllManager;
 public class AppModel {
     
    private BllManager bll =  new BllManager();
-    private ObservableList<Movie> inmates = FXCollections.observableArrayList();
+    private ObservableList<Movie> movies = FXCollections.observableArrayList();
     
     public void fetchData() throws IOException{
     
-    inmates.clear();
-    inmates.addAll(bll.getAllMovies());
+    movies.clear();
+    movies.addAll(bll.getAllMovies());
     
     
     }
 
-    public ObservableList<Movie> getInmates() {
-        return inmates;
+    public ObservableList<Movie> getMovies() {
+        return movies;
     }
     
-    public void deleteMovie(Movie movie){
+    public void deleteMovie(Movie movie) throws IOException{
     
     bll.deleteMovie(movie);
     

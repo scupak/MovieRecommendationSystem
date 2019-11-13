@@ -25,7 +25,7 @@ public class BllManager {
     
     
     }
-    public void deleteMovie(Movie movie){
+    public void deleteMovie(Movie movie) throws IOException{
     
     dalmanager.deleteMovie(movie);
     
