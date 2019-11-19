@@ -38,12 +38,14 @@ public class MovieDBDAO implements IMovieDao
     public static void main(String[] args) throws DalException, IOException
     {
         MovieDBDAO movieDao = new MovieDBDAO();
-
+/*
         List<Movie> allMovies = movieDao.getAllMovies();
         for (Movie allMovy : allMovies)
         {
             System.out.println(allMovy);
         }
+*/
+               movieDao.createMovie("frozen", 1999);
 
     }
 
@@ -94,11 +96,27 @@ public class MovieDBDAO implements IMovieDao
     public Movie createMovie(String title, int year) throws DalException
     {
         try(Connection con = dbCon.getConnection()){
-        String sql = "INSERT INTO movie VALUES (";
+        String sql = "INSERT INTO movie VALUES ('" + title + "',"+ year +");";
+        Statement st = con.createStatement();
+        int affectedRows = st.executeUpdate(sql,Statement.RETURN_GENERATED_KEYS);
+        
+        if(affectedRows == 1){
+            ResultSet rs = st.getGeneratedKeys();
+            
+           int id = rs.getInt(1);
+            
+            Movie mov = new Movie(id,year,title);
+            return mov;
+        
+        }
         
         }catch (SQLServerException ex) {
             Logger.getLogger(MovieDBDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(MovieDBDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return null;
+       
     }
 
 }
